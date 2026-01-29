@@ -18,6 +18,31 @@ console.log("Input code loaded:\n");//print the code
 
 const ast = parse(code);//parse the code to AST
 
+
+//inject integrity check functions
+const integrityAst = parse(`
+function _hash(str){
+  let h=0;
+  for(let i=0;i<str.length;i++){
+    h=(h<<5)-h+str.charCodeAt(i);
+    h|=0;
+  }
+  return h;
+}
+
+function __integritySnapshot(){
+  const snapshot = {};
+  try{
+    snapshot.main = _hash(_main.toString());
+  }catch(e){
+    snapshot.main = null;
+  }
+  return snapshot;
+}
+`);
+
+ast.program.body.unshift(...integrityAst.program.body);
+
 encodeStrings(ast);
 
 const decoderAst = parse(
@@ -26,6 +51,34 @@ const decoderAst = parse(
 ast.program.body.unshift(decoderAst.program.body[0]);
 
 renameIdentifiers(ast);//transform the AST
+
+//inject integrity snapshot
+const snapshotAst = parse(`
+const __INTEGRITY__ = __integritySnapshot();
+`);
+ast.program.body.push(snapshotAst.program.body[0]);
+
+//inject expected integrity
+const expectedAst = parse(`
+const __EXPECTED_INTEGRITY__ = __INTEGRITY__.main;
+`);
+ast.program.body.push(expectedAst.program.body[0]);
+
+//inject tamper check
+const compareAst = parse(`
+const __TAMPERED__ =
+  !__INTEGRITY__ ||
+  __INTEGRITY__.main !== __EXPECTED_INTEGRITY__;
+`);
+ast.program.body.push(compareAst.program.body[0]);
+
+//inject response to tampering
+const responseAst = parse(`
+if (typeof __TAMPERED__ !== "undefined" && __TAMPERED__) {
+  console.warn("⚠️ Integrity check failed. Limited functionality enabled.");
+}
+`);
+ast.program.body.push(responseAst.program.body[0]);
 
 const outputCode = generate(ast); //generate code from AST
 

@@ -1,6 +1,10 @@
-function greet(name) {
-  const message = "Hello " + name;
-  return message;
+function _main() {
+  function greet(name) {
+    const message = "Hello " + name;
+    return message;
+  }
+
+  console.log(greet("World"));
 }
 
-console.log(greet("World"));
+_main();
