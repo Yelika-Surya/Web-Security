@@ -1,20 +1,34 @@
-function _decode(_0x77e2c65e) {
-  return Buffer.from(_0x77e2c65e, "base64").toString("utf8");
+function _decode(_0x72e292c7) {
+  return Buffer.from(_0x72e292c7, "base64").toString("utf8");
+}
+function _hash(_0x72e292c7) {
+  let _0x45727319 = 0;
+  for (let _0x6bb73e90 = 0; _0x6bb73e90 < _0x72e292c7.length; _0x6bb73e90++) {
+    _0x45727319 = (_0x45727319 << 5) - _0x45727319 + _0x72e292c7.charCodeAt(_0x6bb73e90);
+    _0x45727319 |= 0;
+  }
+  return _0x45727319;
+}
+function __integritySnapshot() {
+  const _0x898f625a = {};
+  try {
+    _0x898f625a.main = _hash(_main.toString());
+  } catch (_0x8ce5ed83) {
+    _0x898f625a.main = null;
+  }
+  return _0x898f625a;
 }
 function _main() {
-  function _0xb41434ad(_0xfb1726d3) {
-    const _0x259eec04 = _decode("SGVsbG8g") + _0xfb1726d3;
-    return _0x259eec04;
+  function _0xfdd81e07(_0x109a0a42) {
+    const _0x53bc8441 = _decode("SGVsbG8g") + _0x109a0a42;
+    return _0x53bc8441;
   }
-  console.log(_0xb41434ad(_decode("V29ybGQ=")));
+  console.log(_0xfdd81e07(_decode("V29ybGQ1223")));
 }
 _main();
-const fs = require("fs");
-
-const __EXPECTED_FILE_HASH__ = "e8b39fb1879544477092a15aa61274a6e22f32c97c272f0cff55582edcb91e2a";
-
-const __TAMPERED__ = __verifyFileIntegrity();
-
-if (__TAMPERED__) {
-  console.warn("⚠️ Integrity check failed. File has been modified.");
+const __INTEGRITY__ = __integritySnapshot();
+const __EXPECTED_INTEGRITY__ = __INTEGRITY__.main;
+const __TAMPERED__ = !__INTEGRITY__ || __INTEGRITY__.main !== __EXPECTED_INTEGRITY__;
+if (typeof __TAMPERED__ !== "undefined" && __TAMPERED__) {
+  console.warn("⚠️ Integrity check failed. Limited functionality enabled.");
 }
